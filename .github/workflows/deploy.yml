@@ -62,9 +62,10 @@ jobs:
           # Verify data file exists (will be created with fallback data if API fails)
           if [ ! -f src/_data/nfl-odds.json ]; then
             echo "Creating fallback NFL data..."
-            cat > src/_data/nfl-odds.json << 'EOF'
+            CURRENT_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+            cat > src/_data/nfl-odds.json << EOF
           {
-            "lastUpdated": "$(date -u +"%Y-%m-%dT%H:%M:%SZ")",
+            "lastUpdated": "${CURRENT_DATE}",
             "currentWeek": 1,
             "games": [
               {
@@ -72,21 +73,21 @@ jobs:
                 "matchup": "Chiefs vs. Lions",
                 "odds": "Chiefs: -140 ★ / Lions: +120",
                 "info": "Thu 8:20pm",
-                "commence_time": "$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+                "commence_time": "${CURRENT_DATE}"
               },
               {
                 "id": "2",
                 "matchup": "Bears vs. Packers",
                 "odds": "Packers: -130 ★ / Bears: +110",
                 "info": "Sun 1:00pm",
-                "commence_time": "$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+                "commence_time": "${CURRENT_DATE}"
               },
               {
                 "id": "3",
                 "matchup": "Cowboys vs. Giants",
                 "odds": "Cowboys: -125 ★ / Giants: +105",
                 "info": "Sun 8:20pm",
-                "commence_time": "$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+                "commence_time": "${CURRENT_DATE}"
               }
             ],
             "gamesByWeek": {}
