@@ -35,6 +35,9 @@ class ConfidenceApp {
 
         // Re-render the table with the sorted order
         this.renderGamesTable();
+
+        // Initialize changes indicator
+        this.updateChangesIndicator();
       } catch (error) {
         console.error("Failed to parse NFL data:", error);
         this.loadFallbackData();
@@ -70,6 +73,7 @@ class ConfidenceApp {
     ];
     this.sortGamesByFavoriteOdds();
     this.initializeDefaultSelections();
+    this.updateChangesIndicator();
   }
 
   getFavoriteInfo(game) {
@@ -208,6 +212,7 @@ class ConfidenceApp {
           this.selectedTeams[gameId] = team;
           this.updateTeamSelection(gameId);
           this.saveToStorage();
+          this.updateChangesIndicator();
         }
       });
     });
@@ -572,7 +577,10 @@ class ConfidenceApp {
 
   hasChangesFromDefaults() {
     const defaultState = this.getDefaultState();
-    if (!defaultState) return false;
+    if (!defaultState) {
+      console.log("No default state available");
+      return false;
+    }
 
     const { defaultGames, defaultSelections } = defaultState;
 
@@ -580,29 +588,47 @@ class ConfidenceApp {
     const currentOrder = this.games.map((g) => g.id).join(",");
     const defaultOrder = defaultGames.map((g) => g.id).join(",");
 
-    if (currentOrder !== defaultOrder) return true;
+    console.log("Current order:", currentOrder);
+    console.log("Default order:", defaultOrder);
+
+    if (currentOrder !== defaultOrder) {
+      console.log("Order has changed");
+      return true;
+    }
 
     // Check if team selections have changed
     for (const gameId of Object.keys(this.selectedTeams)) {
+      console.log(
+        `Game ${gameId}: current=${this.selectedTeams[gameId]}, default=${defaultSelections[gameId]}`
+      );
       if (this.selectedTeams[gameId] !== defaultSelections[gameId]) {
+        console.log("Team selection has changed");
         return true;
       }
     }
 
+    console.log("No changes detected");
     return false;
   }
 
   updateChangesIndicator() {
     const indicator = document.getElementById("changes-indicator");
-    if (!indicator) return;
+    if (!indicator) {
+      console.warn("Changes indicator element not found!");
+      return;
+    }
 
-    if (this.hasChangesFromDefaults()) {
+    const hasChanges = this.hasChangesFromDefaults();
+    console.log("Checking for changes:", hasChanges);
+
+    if (hasChanges) {
       indicator.classList.remove("hidden");
+      console.log("Showing changes indicator");
     } else {
       indicator.classList.add("hidden");
+      console.log("Hiding changes indicator");
     }
   }
-
   clearStorage() {
     if (typeof Storage !== "undefined") {
       localStorage.removeItem(this.getStorageKey("games"));
@@ -629,6 +655,11 @@ class ConfidenceApp {
 // Initialize the app when the DOM is loaded
 document.addEventListener("DOMContentLoaded", () => {
   console.log("DOM loaded, initializing ConfidenceApp...");
+
+  // Debug: Check if changes indicator exists
+  const indicator = document.getElementById("changes-indicator");
+  console.log("Changes indicator element found:", !!indicator);
+
   const app = new ConfidenceApp();
   console.log("ConfidenceApp initialized:", app);
 
