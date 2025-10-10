@@ -172,7 +172,7 @@ class ConfidenceApp {
         row.classList.add("dragging");
         row.style.cursor = "grabbing";
         e.dataTransfer.effectAllowed = "move";
-        
+
         // Add ghost image for better visual feedback
         const dragImage = row.cloneNode(true);
         dragImage.style.opacity = "0.8";
@@ -206,16 +206,16 @@ class ConfidenceApp {
       row.addEventListener("dragover", (e) => {
         e.preventDefault();
         e.dataTransfer.dropEffect = "move";
-        
+
         if (this.draggedElement && this.draggedElement !== row) {
           // Clear previous indicators
           this.clearDropZoneStyles();
-          
+
           // Determine if we're in the top or bottom half of the row
           const rect = row.getBoundingClientRect();
           const midpoint = rect.top + rect.height / 2;
           const isTopHalf = e.clientY < midpoint;
-          
+
           if (isTopHalf) {
             row.classList.add("drag-over");
           } else {
@@ -228,28 +228,32 @@ class ConfidenceApp {
         e.preventDefault();
         console.log("Drop event", e);
         this.clearDropZoneStyles();
-        
+
         if (this.draggedElement && this.draggedElement !== row) {
           const fromIndex = parseInt(this.draggedElement.dataset.index, 10);
           let toIndex = parseInt(row.dataset.index, 10);
-          
+
           // Determine insertion point based on drop position
           const rect = row.getBoundingClientRect();
           const midpoint = rect.top + rect.height / 2;
           const isTopHalf = e.clientY < midpoint;
-          
+
           // Adjust target index for bottom half drops
           if (!isTopHalf && fromIndex < toIndex) {
             // No adjustment needed when dragging down and dropping in bottom half
           } else if (!isTopHalf && fromIndex > toIndex) {
             toIndex += 1;
           } else if (isTopHalf && fromIndex > toIndex) {
-            // No adjustment needed when dragging up and dropping in top half  
+            // No adjustment needed when dragging up and dropping in top half
           } else if (isTopHalf && fromIndex < toIndex) {
             toIndex -= 1;
           }
-          
-          console.log(`Reordering from ${fromIndex} to ${toIndex} (${isTopHalf ? 'top' : 'bottom'} half)`);
+
+          console.log(
+            `Reordering from ${fromIndex} to ${toIndex} (${
+              isTopHalf ? "top" : "bottom"
+            } half)`
+          );
           this.reorderGames(fromIndex, toIndex);
         }
       });
@@ -258,7 +262,7 @@ class ConfidenceApp {
 
   clearDropZoneStyles() {
     const rows = document.querySelectorAll(".game-row");
-    rows.forEach(row => {
+    rows.forEach((row) => {
       row.classList.remove("drag-target", "drag-over", "drag-over-bottom");
     });
   }

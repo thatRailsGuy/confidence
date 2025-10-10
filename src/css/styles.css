@@ -117,13 +117,13 @@
     /* Larger touch target */
     min-height: 60px;
   }
-  
+
   .game-row.dragging {
     cursor: grabbing;
     opacity: 0.8;
     transform: scale(1.05);
   }
-  
+
   .game-row.drag-over,
   .game-row.drag-over-bottom {
     animation: pulse-border 0.6s ease-in-out infinite;
@@ -131,7 +131,8 @@
 }
 
 @keyframes pulse-border {
-  0%, 100% {
+  0%,
+  100% {
     border-color: #10b981;
     background-color: rgba(16, 185, 129, 0.1);
     box-shadow: 0 0 12px rgba(16, 185, 129, 0.4);
@@ -142,8 +143,6 @@
     box-shadow: 0 0 20px rgba(16, 185, 129, 0.6);
   }
 }
-
-
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
@@ -158,8 +157,6 @@
   .confidence-number {
     font-size: 1rem;
   }
-  
-
 }
 
 /* Dark mode support */
