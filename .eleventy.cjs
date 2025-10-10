@@ -51,6 +51,11 @@ module.exports = function (eleventyConfig) {
     return str ? str.trim() : "";
   });
 
+  // Add JSON filter for safe JSON serialization
+  eleventyConfig.addFilter("json", function (obj) {
+    return JSON.stringify(obj);
+  });
+
   // Add filter to get favorite team from odds
   eleventyConfig.addFilter("getFavorite", function (game) {
     if (!game || !game.odds || !game.matchup) return null;
