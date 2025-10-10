@@ -263,7 +263,7 @@ async function main() {
     ];
 
     // Write fallback data
-    const outputPath = path.join(dataDir, "nflOdds.json");
+    const outputPath = path.join(dataDir, "nfl-odds.json");
     fs.writeFileSync(
       outputPath,
       JSON.stringify(
@@ -296,7 +296,7 @@ async function main() {
   }
 
   // Write main odds file
-  const outputPath = path.join(dataDir, "nflOdds.json");
+  const outputPath = path.join(dataDir, "nfl-odds.json");
   const data = {
     lastUpdated: new Date().toISOString(),
     currentWeek: currentWeek,

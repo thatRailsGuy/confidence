@@ -69,7 +69,8 @@ description: Drag and drop your NFL picks in confidence order
   </div>
 
   {% set currentWeekGames = nflOdds.gamesByWeek[nflOdds.currentWeek] or nflOdds.games %}
-  {% if currentWeekGames.length > 0 %}
+  {% set sortedGames = currentWeekGames | sortByFavoriteOdds %}
+  {% if sortedGames.length > 0 %}
 
   <table class="confidence-table min-w-[350px] border border-gray-300 rounded shadow bg-white">
     <thead>
@@ -83,16 +84,17 @@ description: Drag and drop your NFL picks in confidence order
       </tr>
     </thead>
     <tbody id="games-tbody">
-      {% for game in currentWeekGames %}
+      {% for game in sortedGames %}
       {% set teams = game.matchup | split(' vs. ') %}
       {% set away = teams[0] %}
       {% set home = teams[1] %}
       {% set confidence = loop.length - loop.index0 %}
+      {% set favorite = game | getFavorite %}
 
       <tr class="game-row bg-white hover:bg-gray-50 transition-colors" draggable="true" data-index="{{ loop.index0 }}">
         <td class="p-2 text-center font-bold text-gray-800 confidence-number">{{ confidence }}</td>
 
-        <td class="p-2 cursor-pointer rounded team-cell" data-game-id="{{ game.id }}" data-team="{{ away }}">
+        <td class="p-2 cursor-pointer rounded team-cell {% if favorite == away %}selected{% endif %}" data-game-id="{{ game.id }}" data-team="{{ away }}">
           <div class="flex flex-col items-center">
             <span>{{ away }}</span>
             {% if game.odds and (game.odds | includes('/')) %}
@@ -100,14 +102,14 @@ description: Drag and drop your NFL picks in confidence order
               {% for part in oddsParts %}
                 {% set cleanPart = part | trim %}
                 {% if cleanPart | startsWith(away + ':') %}
-                <span class="text-xs text-gray-600">{{ cleanPart | replace(away + ':', '') | trim }}</span>
+                <span class="text-xs {% if favorite == away %}text-white{% else %}text-gray-600{% endif %}">{{ cleanPart | replace(away + ':', '') | trim }}</span>
                 {% endif %}
               {% endfor %}
             {% endif %}
           </div>
         </td>
 
-        <td class="p-2 cursor-pointer rounded team-cell" data-game-id="{{ game.id }}" data-team="{{ home }}">
+        <td class="p-2 cursor-pointer rounded team-cell {% if favorite == home %}selected{% endif %}" data-game-id="{{ game.id }}" data-team="{{ home }}">
           <div class="flex flex-col items-center">
             <span>{{ home }}</span>
             {% if game.odds and (game.odds | includes('/')) %}
@@ -115,7 +117,7 @@ description: Drag and drop your NFL picks in confidence order
               {% for part in oddsParts %}
                 {% set cleanPart = part | trim %}
                 {% if cleanPart | startsWith(home + ':') %}
-                <span class="text-xs text-gray-600">{{ cleanPart | replace(home + ':', '') | trim }}</span>
+                <span class="text-xs {% if favorite == home %}text-white{% else %}text-gray-600{% endif %}">{{ cleanPart | replace(home + ':', '') | trim }}</span>
                 {% endif %}
               {% endfor %}
             {% endif %}
@@ -167,7 +169,7 @@ description: Drag and drop your NFL picks in confidence order
 <!-- Embed NFL data for JavaScript -->
 <script type="application/json" id="nfl-data">
 {
-  "games": {{ currentWeekGames | dump | safe }},
+  "games": {{ sortedGames | dump | safe }},
   "currentWeek": {{ nflOdds.currentWeek }},
   "lastUpdated": "{{ nflOdds.lastUpdated }}"
 }

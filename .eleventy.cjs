@@ -51,6 +51,122 @@ module.exports = function (eleventyConfig) {
     return str ? str.trim() : "";
   });
 
+  // Add filter to get favorite team from odds
+  eleventyConfig.addFilter("getFavorite", function (game) {
+    if (!game || !game.odds || !game.matchup) return null;
+
+    const [away, home] = game.matchup.split(" vs. ");
+    let awayOdds = null,
+      homeOdds = null;
+
+    if (
+      game.odds &&
+      game.odds.includes("/") &&
+      game.odds.includes(away) &&
+      game.odds.includes(home)
+    ) {
+      const oddsParts = game.odds.split("/").map((s) => s.trim());
+      for (const part of oddsParts) {
+        if (part.startsWith(away + ":"))
+          awayOdds = parseInt(
+            part.replace(away + ":", "").replace(/[^-\d]/g, ""),
+            10
+          );
+        if (part.startsWith(home + ":"))
+          homeOdds = parseInt(
+            part.replace(home + ":", "").replace(/[^-\d]/g, ""),
+            10
+          );
+      }
+    }
+
+    if (awayOdds !== null && homeOdds !== null) {
+      if (awayOdds < homeOdds) return away;
+      else return home;
+    }
+    return home; // fallback
+  });
+
+  // Add filter to get favorite odds value for sorting
+  eleventyConfig.addFilter("getFavoriteOdds", function (game) {
+    if (!game || !game.odds || !game.matchup) return 0;
+
+    const [away, home] = game.matchup.split(" vs. ");
+    let awayOdds = null,
+      homeOdds = null;
+
+    if (
+      game.odds &&
+      game.odds.includes("/") &&
+      game.odds.includes(away) &&
+      game.odds.includes(home)
+    ) {
+      const oddsParts = game.odds.split("/").map((s) => s.trim());
+      for (const part of oddsParts) {
+        if (part.startsWith(away + ":"))
+          awayOdds = parseInt(
+            part.replace(away + ":", "").replace(/[^-\d]/g, ""),
+            10
+          );
+        if (part.startsWith(home + ":"))
+          homeOdds = parseInt(
+            part.replace(home + ":", "").replace(/[^-\d]/g, ""),
+            10
+          );
+      }
+    }
+
+    if (awayOdds !== null && homeOdds !== null) {
+      return Math.min(awayOdds, homeOdds); // Return the favorite odds (more negative = stronger favorite)
+    }
+    return 0; // fallback
+  });
+
+  // Add filter to sort games by favorite odds
+  eleventyConfig.addFilter("sortByFavoriteOdds", function (games) {
+    if (!Array.isArray(games)) return [];
+
+    function getFavoriteOdds(game) {
+      if (!game || !game.odds || !game.matchup) return 0;
+
+      const [away, home] = game.matchup.split(" vs. ");
+      let awayOdds = null,
+        homeOdds = null;
+
+      if (
+        game.odds &&
+        game.odds.includes("/") &&
+        game.odds.includes(away) &&
+        game.odds.includes(home)
+      ) {
+        const oddsParts = game.odds.split("/").map((s) => s.trim());
+        for (const part of oddsParts) {
+          if (part.startsWith(away + ":"))
+            awayOdds = parseInt(
+              part.replace(away + ":", "").replace(/[^-\d]/g, ""),
+              10
+            );
+          if (part.startsWith(home + ":"))
+            homeOdds = parseInt(
+              part.replace(home + ":", "").replace(/[^-\d]/g, ""),
+              10
+            );
+        }
+      }
+
+      if (awayOdds !== null && homeOdds !== null) {
+        return Math.min(awayOdds, homeOdds); // Return the favorite odds (more negative = stronger favorite)
+      }
+      return 0; // fallback
+    }
+
+    return [...games].sort((a, b) => {
+      const aOdds = getFavoriteOdds(a);
+      const bOdds = getFavoriteOdds(b);
+      return aOdds - bOdds; // Sort by strongest favorite first (most negative)
+    });
+  });
+
   return {
     dir: {
       input: "src",

@@ -53,15 +53,15 @@
 }
 
 .team-cell:hover:not(.selected) {
-  background-color: #dbeafe;
-  border-color: #3b82f6;
+  background-color: #dbeafe !important;
+  border-color: #3b82f6 !important;
 }
 
 .team-cell.selected {
-  background-color: #3b82f6;
-  color: white;
-  border-color: #1d4ed8;
-  box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3);
+  background-color: #3b82f6 !important;
+  color: white !important;
+  border-color: #1d4ed8 !important;
+  box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3) !important;
 }
 
 .confidence-number {

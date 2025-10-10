@@ -15,7 +15,18 @@ class ConfidenceApp {
     // Set up drag and drop for existing server-rendered table
     this.setupDragAndDrop();
     this.setupTeamSelection();
-    this.updateAllTeamSelections();
+    // Only update selections if we loaded from storage and overwrote server selections
+    if (this.hasStoredData()) {
+      this.updateAllTeamSelections();
+    }
+  }
+
+  hasStoredData() {
+    if (typeof Storage === "undefined") return false;
+    const savedSelections = localStorage.getItem(
+      this.getStorageKey("selections")
+    );
+    return savedSelections !== null;
   }
 
   loadInitialData() {
@@ -27,14 +38,9 @@ class ConfidenceApp {
         this.games = data.games || [];
         this.currentWeek = data.currentWeek || 1;
 
-        // Sort games by best odds (lowest favorites first)
-        this.sortGamesByFavoriteOdds();
-
-        // Initialize selections based on server-rendered data
-        this.initializeDefaultSelections();
-
-        // Re-render the table with the sorted order
-        this.renderGamesTable();
+        // Games are already sorted server-side, no need to re-sort
+        // Initialize selections from server-rendered HTML instead of overriding
+        this.initializeSelectionsFromHTML();
 
         // Initialize changes indicator
         this.updateChangesIndicator();
@@ -45,6 +51,22 @@ class ConfidenceApp {
     } else {
       this.loadFallbackData();
     }
+  }
+
+  initializeSelectionsFromHTML() {
+    // Read the current selections from the server-rendered HTML
+    const selectedCells = document.querySelectorAll(".team-cell.selected");
+    this.selectedTeams = {};
+
+    selectedCells.forEach((cell) => {
+      const gameId = cell.dataset.gameId;
+      const team = cell.dataset.team;
+      if (gameId && team) {
+        this.selectedTeams[gameId] = team;
+      }
+    });
+
+    console.log("Initialized selections from HTML:", this.selectedTeams);
   }
 
   loadFallbackData() {
@@ -73,6 +95,7 @@ class ConfidenceApp {
     ];
     this.sortGamesByFavoriteOdds();
     this.initializeDefaultSelections();
+    this.renderGamesTable(); // Only render for fallback data
     this.updateChangesIndicator();
   }
 
@@ -468,14 +491,30 @@ class ConfidenceApp {
           ) {
             this.games = parsedGames;
             this.selectedTeams = parsedSelections;
-            this.renderGamesTable();
+
+            // Update the existing server-rendered table instead of re-rendering
+            this.updateExistingTable();
             this.updateChangesIndicator();
+
+            console.log("Loaded saved data and updated existing table");
           }
         } catch (error) {
           console.warn("Failed to restore saved data:", error);
         }
       }
     }
+  }
+
+  updateExistingTable() {
+    // Update the confidence numbers based on current game order
+    this.updateConfidenceNumbers();
+
+    // Update team selections to match saved data
+    this.updateAllTeamSelections();
+
+    // Re-setup event listeners for the updated table
+    this.setupDragAndDrop();
+    this.setupTeamSelection();
   }
 
   arrayToClipboard(games, selectedTeams) {
