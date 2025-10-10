@@ -1,0 +1,107 @@
+/* Custom styles for the confidence pool app */
+
+.game-row {
+  transition: all 0.2s ease;
+  cursor: grab;
+  border-left: 3px solid transparent;
+}
+
+.game-row:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  border-left-color: #3b82f6;
+}
+
+.game-row.dragging {
+  opacity: 0.6;
+  transform: rotate(2deg) scale(1.02);
+  cursor: grabbing;
+  border-left-color: #ef4444;
+  z-index: 1000;
+}
+
+.team-cell {
+  transition: all 0.15s ease;
+  cursor: pointer;
+  user-select: none;
+}
+
+.team-cell:hover:not(.selected) {
+  background-color: #dbeafe;
+  border-color: #3b82f6;
+}
+
+.team-cell.selected {
+  background-color: #3b82f6;
+  color: white;
+  border-color: #1d4ed8;
+  box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3);
+}
+
+.confidence-number {
+  font-weight: 700;
+  font-size: 1.125rem;
+}
+
+.drag-handle {
+  cursor: grab;
+}
+
+.drag-handle:active {
+  cursor: grabbing;
+}
+
+.week-selector {
+  background: white;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  padding: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.export-btn,
+.import-btn {
+  transition: all 0.2s ease;
+}
+
+.export-btn:hover,
+.import-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.loading-spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .confidence-table {
+    font-size: 0.875rem;
+  }
+
+  .team-cell {
+    padding: 0.5rem;
+  }
+
+  .confidence-number {
+    font-size: 1rem;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .team-cell:hover:not(.selected) {
+    background-color: #1e3a8a;
+  }
+}

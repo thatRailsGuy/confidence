@@ -1,0 +1,28 @@
+{
+  "name": "confidence-eleventy",
+  "version": "1.0.0",
+  "description": "NFL Confidence Pool static site built with Eleventy",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "build": "eleventy --config=.eleventy.cjs",
+    "serve": "eleventy --serve --config=.eleventy.cjs",
+    "debug": "DEBUG=Eleventy* eleventy --config=.eleventy.cjs",
+    "fetch-odds": "node scripts/fetch-odds.js",
+    "clean": "rm -rf _site"
+  },
+  "keywords": [
+    "eleventy",
+    "nfl",
+    "confidence",
+    "static-site"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@11ty/eleventy": "^2.0.1"
+  },
+  "dependencies": {
+    "node-fetch": "^3.3.2"
+  }
+}
