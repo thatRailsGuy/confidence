@@ -34,7 +34,7 @@ description: Drag and drop your NFL picks in confidence order
         class="week-selector"
       >
         {% for week in (1 | range(19)) %}
-        <option value="{{ week }}" {% if week == nflOdds.currentWeek %}selected{% endif %}>
+        <option value="{{ week }}" {% if week == nfl_odds.currentWeek %}selected{% endif %}>
           Week {{ week }}
         </option>
         {% endfor %}
@@ -68,7 +68,8 @@ description: Drag and drop your NFL picks in confidence order
     </button>
   </div>
 
-  {% set currentWeekGames = nflOdds.gamesByWeek[nflOdds.currentWeek] or nflOdds.games %}
+  {% set currentWeek = nflOdds.currentWeek or 1 %}
+  {% set currentWeekGames = nfl_odds.gamesByWeek[nfl_odds.currentWeek] or nfl_odds.games %}
   {% set sortedGames = currentWeekGames | sortByFavoriteOdds %}
   {% if sortedGames.length > 0 %}
 
@@ -162,7 +163,7 @@ description: Drag and drop your NFL picks in confidence order
     Select your pick for each matchup. Paste into or from Google Sheets or Excel.
     Odds and games are live if available, otherwise placeholders.
     <br>
-    <span class="text-xs">Last updated: {{ nflOdds.lastUpdated | dateFormat }}</span>
+    <span class="text-xs">Last updated: {{ nfl_odds.lastUpdated | dateFormat }}</span>
   </p>
 </div>
 
@@ -170,7 +171,7 @@ description: Drag and drop your NFL picks in confidence order
 <script type="application/json" id="nfl-data">
 {
   "games": {{ sortedGames | json | safe }},
-  "currentWeek": {{ nflOdds.currentWeek }},
-  "lastUpdated": "{{ nflOdds.lastUpdated }}"
+  "currentWeek": {{ nfl_odds.currentWeek or 1 }},
+  "lastUpdated": "{{ nfl_odds.lastUpdated or '' }}"
 }
 </script>
