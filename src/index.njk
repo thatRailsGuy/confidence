@@ -68,8 +68,9 @@ description: Drag and drop your NFL picks in confidence order
     </button>
   </div>
 
-  {% set currentWeek = nflOdds.currentWeek or 1 %}
-  {% set currentWeekGames = nfl_odds.gamesByWeek[nfl_odds.currentWeek] or nfl_odds.games %}
+  {% set dataSource = nfl_odds %}
+  {% set currentWeek = dataSource.currentWeek or 1 %}
+  {% set currentWeekGames = dataSource.gamesByWeek[dataSource.currentWeek] or dataSource.games %}
   {% set sortedGames = currentWeekGames | sortByFavoriteOdds %}
   {% if sortedGames.length > 0 %}
 
@@ -154,7 +155,7 @@ description: Drag and drop your NFL picks in confidence order
   <div class="text-center p-8">
     <p class="text-gray-500 text-lg">No games available for the current week.</p>
     <p class="text-gray-400 text-sm mt-2">
-      Last updated: {{ nflOdds.lastUpdated | dateFormat }}
+      Last updated: {{ nfl_odds.lastUpdated | dateFormat }}
     </p>
   </div>
   {% endif %}
