@@ -6,27 +6,30 @@ description: Drag and drop your NFL picks in confidence order
 
 <div class="min-h-screen flex flex-col items-center justify-center p-8 gap-8">
   <h1 class="text-2xl font-bold mb-4">
-    NFL Confidence Order (Drag & Drop)
+    ThatRailsGuy's NFL Confidence Order Drag and Drop Tool
   </h1>
 
-  <div class="flex flex-wrap items-center gap-4 mb-4">
-    <a
-      href="https://football.fantasysports.yahoo.com/pickem"
-      target="_blank"
-      rel="noopener noreferrer"
-      class="inline-block bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-4 rounded transition-colors"
+  <div id="changes-indicator" class="hidden mb-4 px-4 py-2 bg-yellow-100 border border-yellow-400 text-yellow-800 rounded-lg flex items-center justify-between gap-4">
+    <div class="flex items-center gap-2">
+      <span>⚠️</span>
+      <span>You have modified the default order or selections</span>
+    </div>
+    <button
+      id="reset-btn"
+      class="reset-btn px-3 py-1 bg-red-600 text-white text-sm rounded hover:bg-red-700 transition-colors"
     >
-      Yahoo Fantasy Football Pick'em
-    </a>
-    <a
-      href="https://survivorgrid.com"
-      target="_blank"
-      rel="noopener noreferrer"
-      class="inline-block bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded transition-colors"
-    >
-      SurvivorGrid
-    </a>
+      Reset to Defaults
+    </button>
+  </div>
 
+  <p class="text-gray-500 text-sm mb-4 text-center max-w-2xl mx-auto">
+    Select your pick for each matchup. Paste into or from Google Sheets or Excel.
+    Odds and games are live if available, otherwise placeholders.
+    <br>
+    <span class="text-xs">Last updated: {{ nfl_odds.lastUpdated | dateFormat }}</span>
+  </p>
+
+  <div class="flex flex-wrap items-center gap-4 mb-6 justify-center">
     <div class="flex items-center gap-2">
       <label for="week-select" class="font-semibold">Week:</label>
       <select
@@ -52,19 +55,6 @@ description: Drag and drop your NFL picks in confidence order
       class="import-btn px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
     >
       Import from Clipboard
-    </button>
-  </div>
-
-  <div id="changes-indicator" class="hidden mb-4 px-4 py-2 bg-yellow-100 border border-yellow-400 text-yellow-800 rounded-lg flex items-center justify-between gap-4">
-    <div class="flex items-center gap-2">
-      <span>⚠️</span>
-      <span>You have modified the default order or selections</span>
-    </div>
-    <button
-      id="reset-btn"
-      class="reset-btn px-3 py-1 bg-red-600 text-white text-sm rounded hover:bg-red-700 transition-colors"
-    >
-      Reset to Defaults
     </button>
   </div>
 
@@ -160,12 +150,25 @@ description: Drag and drop your NFL picks in confidence order
   </div>
   {% endif %}
 
-  <p class="text-gray-500 text-sm mt-4 text-center max-w-2xl">
-    Select your pick for each matchup. Paste into or from Google Sheets or Excel.
-    Odds and games are live if available, otherwise placeholders.
-    <br>
-    <span class="text-xs">Last updated: {{ nfl_odds.lastUpdated | dateFormat }}</span>
-  </p>
+  <div class="flex flex-wrap items-center gap-4 mt-8 justify-center">
+    <a
+      href="https://football.fantasysports.yahoo.com/pickem"
+      target="_blank"
+      rel="noopener noreferrer"
+      class="inline-block bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-4 rounded transition-colors"
+    >
+      Yahoo Fantasy Football Pick'em
+    </a>
+    <a
+      href="https://survivorgrid.com"
+      target="_blank"
+      rel="noopener noreferrer"
+      class="inline-block bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded transition-colors"
+    >
+      SurvivorGrid
+    </a>
+  </div>
+
 </div>
 
 <!-- Embed NFL data for JavaScript -->
