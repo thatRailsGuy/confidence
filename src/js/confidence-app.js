@@ -36,6 +36,7 @@ class ConfidenceApp {
       try {
         const data = JSON.parse(dataElement.textContent);
         this.games = data.games || [];
+        this.gamesByWeek = data.gamesByWeek || {};
         this.currentWeek = data.currentWeek || 1;
 
         // Games are already sorted server-side, no need to re-sort
@@ -93,6 +94,12 @@ class ConfidenceApp {
         commence_time: new Date().toISOString(),
       },
     ];
+
+    // Initialize gamesByWeek for fallback
+    this.gamesByWeek = {
+      1: [...this.games],
+    };
+
     this.sortGamesByFavoriteOdds();
     this.initializeDefaultSelections();
     this.renderGamesTable(); // Only render for fallback data
@@ -440,16 +447,43 @@ class ConfidenceApp {
   }
 
   loadWeekData(week) {
-    // In a static site, this would typically reload the page with new data
-    // For now, we'll filter existing games by week or show a message
     console.log(`Loading week ${week} data...`);
+
+    // Get games for the selected week
+    const weekGames = this.gamesByWeek[week] || [];
+
+    if (weekGames.length === 0) {
+      console.log(`No games available for week ${week}`);
+      // Show empty state
+      this.games = [];
+      this.renderGamesTable();
+      return;
+    }
+
+    // Sort games by favorite odds (same logic as server-side)
+    const sortedWeekGames = [...weekGames].sort((a, b) => {
+      const aFav = this.getFavoriteInfo(a).favoriteOdds;
+      const bFav = this.getFavoriteInfo(b).favoriteOdds;
+      return aFav - bFav;
+    });
+
+    // Update current games and re-render
+    this.games = sortedWeekGames;
+    this.currentWeek = week;
+
+    // Clear existing selections for the new week (or load saved ones)
+    this.loadSelectionsForWeek(week);
+
+    // Re-render the table
+    this.renderGamesTable();
 
     // Update URL without reload
     const url = new URL(window.location);
     url.searchParams.set("week", week);
     window.history.pushState({}, "", url);
 
-    // You could implement client-side filtering here if the data includes all weeks
+    // Update changes indicator
+    this.updateChangesIndicator();
   }
 
   getStorageKey(suffix) {
@@ -500,6 +534,35 @@ class ConfidenceApp {
           }
         } catch (error) {
           console.warn("Failed to restore saved data:", error);
+        }
+      }
+    }
+  }
+
+  loadSelectionsForWeek(week) {
+    // Initialize default selections (favorites) for the current games
+    this.selectedTeams = {};
+    for (const game of this.games) {
+      this.selectedTeams[game.id] = this.getFavoriteInfo(game).favorite;
+    }
+
+    // Try to load saved selections for this week
+    if (typeof Storage !== "undefined") {
+      const savedSelections = localStorage.getItem(
+        this.getStorageKey("selections")
+      );
+      if (savedSelections) {
+        try {
+          const parsedSelections = JSON.parse(savedSelections);
+          // Only apply saved selections for games that exist in current week
+          const currentGameIds = new Set(this.games.map((g) => g.id));
+          for (const [gameId, team] of Object.entries(parsedSelections)) {
+            if (currentGameIds.has(gameId)) {
+              this.selectedTeams[gameId] = team;
+            }
+          }
+        } catch (error) {
+          console.warn("Failed to restore saved selections for week:", error);
         }
       }
     }
@@ -622,63 +685,75 @@ class ConfidenceApp {
   }
 
   resetToDefaults() {
-    // Reload original data from the page
-    const dataElement = document.getElementById("nfl-data");
-    if (dataElement) {
-      try {
-        const data = JSON.parse(dataElement.textContent);
-        this.games = [...(data.games || [])]; // Create a fresh copy
-
-        // Sort games by best odds (lowest favorites first)
-        this.sortGamesByFavoriteOdds();
-
-        // Reset to default selections (favorites)
-        this.initializeDefaultSelections();
-
-        // Re-render the table
-        this.renderGamesTable();
-
-        // Clear localStorage
-        this.clearStorage();
-
-        // Update changes indicator
-        this.updateChangesIndicator();
-
-        this.showMessage("Reset to default order and selections!");
-      } catch (error) {
-        console.error("Failed to reset:", error);
-        this.showMessage("Failed to reset. Please refresh the page.", "error");
-      }
+    // Reset to defaults for the currently selected week
+    if (!this.gamesByWeek || !this.gamesByWeek[this.currentWeek]) {
+      console.error("No data available for current week");
+      this.showMessage("No data available for this week.", "error");
+      return;
     }
+
+    const weekGames = this.gamesByWeek[this.currentWeek] || [];
+    if (weekGames.length === 0) {
+      console.log("No games for current week");
+      this.showMessage("No games available for this week.", "error");
+      return;
+    }
+
+    // Create a fresh copy and sort by favorite odds
+    this.games = [...weekGames].sort((a, b) => {
+      const aFav = this.getFavoriteInfo(a).favoriteOdds;
+      const bFav = this.getFavoriteInfo(b).favoriteOdds;
+      return aFav - bFav;
+    });
+
+    // Reset to default selections (favorites) for current week
+    this.selectedTeams = {};
+    for (const game of this.games) {
+      this.selectedTeams[game.id] = this.getFavoriteInfo(game).favorite;
+    }
+
+    // Re-render the table
+    this.renderGamesTable();
+
+    // Clear localStorage for current week
+    this.clearStorage();
+
+    // Update changes indicator
+    this.updateChangesIndicator();
+
+    this.showMessage(
+      `Reset to default order and selections for Week ${this.currentWeek}!`
+    );
   }
 
   getDefaultState() {
-    // Get the original data and default selections
-    const dataElement = document.getElementById("nfl-data");
-    if (dataElement) {
-      try {
-        const data = JSON.parse(dataElement.textContent);
-        const defaultGames = [...(data.games || [])];
-
-        // Sort to get default order
-        defaultGames.sort((a, b) => {
-          const aFav = this.getFavoriteInfo(a).favoriteOdds;
-          const bFav = this.getFavoriteInfo(b).favoriteOdds;
-          return aFav - bFav;
-        });
-
-        // Get default selections (favorites)
-        const defaultSelections = {};
-        for (const game of defaultGames) {
-          defaultSelections[game.id] = this.getFavoriteInfo(game).favorite;
-        }
-
-        return { defaultGames, defaultSelections };
-      } catch (error) {
-        console.error("Failed to get default state:", error);
-      }
+    // Get the default state for the current week being viewed
+    if (!this.gamesByWeek || !this.gamesByWeek[this.currentWeek]) {
+      console.log("No gamesByWeek data available");
+      return null;
     }
-    return null;
+
+    // Get games for current week
+    const weekGames = this.gamesByWeek[this.currentWeek] || [];
+    if (weekGames.length === 0) {
+      console.log("No games for current week");
+      return null;
+    }
+
+    // Sort to get default order (by favorite odds)
+    const defaultGames = [...weekGames].sort((a, b) => {
+      const aFav = this.getFavoriteInfo(a).favoriteOdds;
+      const bFav = this.getFavoriteInfo(b).favoriteOdds;
+      return aFav - bFav;
+    });
+
+    // Get default selections (favorites)
+    const defaultSelections = {};
+    for (const game of defaultGames) {
+      defaultSelections[game.id] = this.getFavoriteInfo(game).favorite;
+    }
+
+    return { defaultGames, defaultSelections };
   }
 
   hasChangesFromDefaults() {

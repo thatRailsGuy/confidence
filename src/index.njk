@@ -172,6 +172,7 @@ description: Drag and drop your NFL picks in confidence order
 <script type="application/json" id="nfl-data">
 {
   "games": {{ sortedGames | json | safe }},
+  "gamesByWeek": {{ nfl_odds.gamesByWeek | json | safe }},
   "currentWeek": {{ nfl_odds.currentWeek or 1 }},
   "lastUpdated": "{{ nfl_odds.lastUpdated or '' }}"
 }
