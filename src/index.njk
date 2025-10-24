@@ -36,10 +36,12 @@ description: Drag and drop your NFL picks in confidence order
         id="week-select"
         class="week-selector"
       >
-        {% for week in (1 | range(19)) %}
-        <option value="{{ week }}" {% if week == nfl_odds.currentWeek %}selected{% endif %}>
-          Week {{ week }}
-        </option>
+        {% for week, games in nfl_odds.gamesByWeek %}
+          {% if games.length > 0 %}
+            <option value="{{ week }}" {% if week == (nfl_odds.currentWeek | string) %}selected{% endif %}>
+              Week {{ week }}
+            </option>
+          {% endif %}
         {% endfor %}
       </select>
     </div>
