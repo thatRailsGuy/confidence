@@ -66,8 +66,6 @@ class ConfidenceApp {
         this.selectedTeams[gameId] = team;
       }
     });
-
-    console.log("Initialized selections from HTML:", this.selectedTeams);
   }
 
   loadFallbackData() {
@@ -187,7 +185,6 @@ class ConfidenceApp {
 
   setupDragAndDrop() {
     const gameRows = document.querySelectorAll(".game-row");
-    console.log(`Setting up drag and drop for ${gameRows.length} rows`);
 
     gameRows.forEach((row, index) => {
       row.draggable = true;
@@ -197,7 +194,6 @@ class ConfidenceApp {
       row.style.cursor = "grab";
 
       row.addEventListener("dragstart", (e) => {
-        console.log("Drag start", index);
         this.draggedElement = row;
         row.classList.add("dragging");
         row.style.cursor = "grabbing";
@@ -213,7 +209,6 @@ class ConfidenceApp {
       });
 
       row.addEventListener("dragend", () => {
-        console.log("Drag end");
         row.classList.remove("dragging");
         row.style.cursor = "grab";
         this.draggedElement = null;
@@ -256,7 +251,6 @@ class ConfidenceApp {
 
       row.addEventListener("drop", (e) => {
         e.preventDefault();
-        console.log("Drop event", e);
         this.clearDropZoneStyles();
 
         if (this.draggedElement && this.draggedElement !== row) {
@@ -278,12 +272,6 @@ class ConfidenceApp {
           } else if (isTopHalf && fromIndex < toIndex) {
             toIndex -= 1;
           }
-
-          console.log(
-            `Reordering from ${fromIndex} to ${toIndex} (${
-              isTopHalf ? "top" : "bottom"
-            } half)`
-          );
           this.reorderGames(fromIndex, toIndex);
         }
       });
@@ -447,13 +435,10 @@ class ConfidenceApp {
   }
 
   loadWeekData(week) {
-    console.log(`Loading week ${week} data...`);
-
     // Get games for the selected week
     const weekGames = this.gamesByWeek[week] || [];
 
     if (weekGames.length === 0) {
-      console.log(`No games available for week ${week}`);
       // Show empty state
       this.games = [];
       this.renderGamesTable();
@@ -529,8 +514,6 @@ class ConfidenceApp {
             // Update the existing server-rendered table instead of re-rendering
             this.updateExistingTable();
             this.updateChangesIndicator();
-
-            console.log("Loaded saved data and updated existing table");
           }
         } catch (error) {
           console.warn("Failed to restore saved data:", error);
@@ -617,7 +600,6 @@ class ConfidenceApp {
       await navigator.clipboard.writeText(text);
       this.showMessage("Exported to clipboard!");
     } catch (error) {
-      console.error("Export failed:", error);
       this.showMessage("Export failed. Please try again.", "error");
     }
   }
@@ -640,7 +622,6 @@ class ConfidenceApp {
         this.showMessage("Clipboard data invalid or empty.", "error");
       }
     } catch (error) {
-      console.error("Import failed:", error);
       this.showMessage("Failed to parse clipboard data.", "error");
     }
   }
@@ -687,14 +668,12 @@ class ConfidenceApp {
   resetToDefaults() {
     // Reset to defaults for the currently selected week
     if (!this.gamesByWeek || !this.gamesByWeek[this.currentWeek]) {
-      console.error("No data available for current week");
       this.showMessage("No data available for this week.", "error");
       return;
     }
 
     const weekGames = this.gamesByWeek[this.currentWeek] || [];
     if (weekGames.length === 0) {
-      console.log("No games for current week");
       this.showMessage("No games available for this week.", "error");
       return;
     }
@@ -729,14 +708,12 @@ class ConfidenceApp {
   getDefaultState() {
     // Get the default state for the current week being viewed
     if (!this.gamesByWeek || !this.gamesByWeek[this.currentWeek]) {
-      console.log("No gamesByWeek data available");
       return null;
     }
 
     // Get games for current week
     const weekGames = this.gamesByWeek[this.currentWeek] || [];
     if (weekGames.length === 0) {
-      console.log("No games for current week");
       return null;
     }
 
@@ -759,7 +736,6 @@ class ConfidenceApp {
   hasChangesFromDefaults() {
     const defaultState = this.getDefaultState();
     if (!defaultState) {
-      console.log("No default state available");
       return false;
     }
 
@@ -768,27 +744,17 @@ class ConfidenceApp {
     // Check if game order has changed
     const currentOrder = this.games.map((g) => g.id).join(",");
     const defaultOrder = defaultGames.map((g) => g.id).join(",");
-
-    console.log("Current order:", currentOrder);
-    console.log("Default order:", defaultOrder);
-
     if (currentOrder !== defaultOrder) {
-      console.log("Order has changed");
       return true;
     }
 
     // Check if team selections have changed
     for (const gameId of Object.keys(this.selectedTeams)) {
-      console.log(
-        `Game ${gameId}: current=${this.selectedTeams[gameId]}, default=${defaultSelections[gameId]}`
-      );
       if (this.selectedTeams[gameId] !== defaultSelections[gameId]) {
-        console.log("Team selection has changed");
         return true;
       }
     }
 
-    console.log("No changes detected");
     return false;
   }
 
@@ -800,14 +766,11 @@ class ConfidenceApp {
     }
 
     const hasChanges = this.hasChangesFromDefaults();
-    console.log("Checking for changes:", hasChanges);
 
     if (hasChanges) {
       indicator.classList.remove("hidden");
-      console.log("Showing changes indicator");
     } else {
       indicator.classList.add("hidden");
-      console.log("Hiding changes indicator");
     }
   }
   clearStorage() {
@@ -835,15 +798,19 @@ class ConfidenceApp {
 
 // Initialize the app when the DOM is loaded
 document.addEventListener("DOMContentLoaded", () => {
-  console.log("DOM loaded, initializing ConfidenceApp...");
-
   // Debug: Check if changes indicator exists
   const indicator = document.getElementById("changes-indicator");
-  console.log("Changes indicator element found:", !!indicator);
 
   const app = new ConfidenceApp();
-  console.log("ConfidenceApp initialized:", app);
 
   // Make app available globally for debugging
   window.confidenceApp = app;
 });
+
+// Export for testing environments
+if (typeof module !== "undefined" && module.exports) {
+  module.exports = ConfidenceApp;
+}
+if (typeof window !== "undefined") {
+  window.ConfidenceApp = ConfidenceApp;
+}
