@@ -66,3 +66,5 @@ temp/
 
 # API testing
 odds-api.rest
+playwright-report/index.html
+test-results/.last-run.json
