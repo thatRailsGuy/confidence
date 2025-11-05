@@ -43,6 +43,11 @@ jobs:
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
+      - name: Fetch NFL odds data for testing
+        run: npm run fetch-odds
+        env:
+          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
 
