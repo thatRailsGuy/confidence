@@ -81,14 +81,30 @@ test.describe("Team Selection", () => {
   }) => {
     await page.waitForSelector(".team-cell");
 
+    // Wait for JavaScript to be fully loaded
+    await page.waitForFunction(() => window.confidenceApp !== undefined);
+
     const changesIndicator = page.locator("#changes-indicator");
 
     // Initially hidden
     await expect(changesIndicator).toHaveClass(/hidden/);
 
-    // Make a selection
-    const firstTeamCell = page.locator(".team-cell").first();
-    await firstTeamCell.click();
+    // Find the first game row and click the non-selected team
+    const firstGameRow = page.locator(".game-row").first();
+    const teamCells = firstGameRow.locator(".team-cell");
+    const firstTeam = teamCells.first();
+    const secondTeam = teamCells.last();
+
+    // Determine which one is currently selected and click the other one
+    const firstTeamSelected = await firstTeam.evaluate((el) =>
+      el.classList.contains("selected")
+    );
+    const teamToClick = firstTeamSelected ? secondTeam : firstTeam;
+
+    await teamToClick.click();
+
+    // Wait a moment for the JavaScript to process the click
+    await page.waitForTimeout(100);
 
     // Should show changes indicator
     await expect(changesIndicator).not.toHaveClass(/hidden/);
@@ -102,19 +118,42 @@ test.describe("Team Selection", () => {
   }) => {
     await page.waitForSelector(".team-cell");
 
-    // Make a selection
-    const firstTeamCell = page.locator(".team-cell").first();
-    await firstTeamCell.click();
+    // Wait for JavaScript to be fully loaded
+    await page.waitForFunction(() => window.confidenceApp !== undefined);
 
-    // Verify selection was made
-    await expect(firstTeamCell).toHaveClass(/selected/);
+    // Find the first game row
+    const firstGameRow = page.locator(".game-row").first();
 
-    // Click reset button
+    // Find the two team cells in this row
+    const teamCells = firstGameRow.locator(".team-cell");
+    const firstTeam = teamCells.first();
+    const secondTeam = teamCells.last();
+
+    // Determine which one is currently selected and click the other one
+    const firstTeamSelected = await firstTeam.evaluate((el) =>
+      el.classList.contains("selected")
+    );
+    const teamToClick = firstTeamSelected ? secondTeam : firstTeam;
+    const originallySelected = firstTeamSelected ? firstTeam : secondTeam;
+
+    // Click the unselected team
+    await teamToClick.click();
+
+    // Wait a moment for the JavaScript to process the click
+    await page.waitForTimeout(100);
+
+    // Verify selection was made - the clicked team should now be selected
+    await expect(teamToClick).toHaveClass(/selected/);
+    // And the originally selected team should no longer be selected
+    await expect(originallySelected).not.toHaveClass(/selected/);
+
+    // Click reset button (which should now be visible)
     const resetBtn = page.locator("#reset-btn");
     await resetBtn.click();
 
-    // Verify selection was cleared
-    await expect(firstTeamCell).not.toHaveClass(/selected/);
+    // Verify selection was reset to original state
+    await expect(originallySelected).toHaveClass(/selected/);
+    await expect(teamToClick).not.toHaveClass(/selected/);
 
     // Changes indicator should be hidden
     const changesIndicator = page.locator("#changes-indicator");
