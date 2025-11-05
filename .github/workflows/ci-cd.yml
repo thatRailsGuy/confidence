@@ -43,6 +43,19 @@ jobs:
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
+      - name: Fetch NFL odds data for testing
+        run: npm run fetch-odds
+        env:
+          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+        continue-on-error: true
+
+      - name: Use fallback data if needed
+        run: |
+          if [ ! -f "src/_data/nfl_odds.json" ]; then
+            echo "Main data file not found, using fallback data"
+            cp src/_data/nfl_odds_fallback.json src/_data/nfl_odds.json
+          fi
+
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
 
