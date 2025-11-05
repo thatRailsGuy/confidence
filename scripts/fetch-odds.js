@@ -190,37 +190,59 @@ async function fetchNflOdds() {
   }
 }
 
+// Helper to get NFL week 1 start date (Tuesday after Labor Day)
+function getNflSeasonStart(year = new Date().getUTCFullYear()) {
+  // Find first Monday in September (Labor Day)
+  const sep1 = new Date(Date.UTC(year, 8, 1)); // September 1
+  const laborDay = new Date(sep1);
+  while (laborDay.getUTCDay() !== 1) {
+    // Find first Monday
+    laborDay.setUTCDate(laborDay.getUTCDate() + 1);
+  }
+
+  // Week 1 starts the Tuesday after Labor Day
+  const week1Start = new Date(laborDay);
+  week1Start.setUTCDate(laborDay.getUTCDate() + 1); // Tuesday after Labor Day
+
+  return week1Start;
+}
+
 // Helper to get week start/end for a given NFL week
 function getNflWeekRange(week, year = new Date().getUTCFullYear()) {
-  // Find first Thursday after Sep 1
-  const sep1 = new Date(Date.UTC(year, 8, 1));
-  const firstThursday = new Date(sep1);
-  while (firstThursday.getUTCDay() !== 4) {
-    firstThursday.setUTCDate(firstThursday.getUTCDate() + 1);
-  }
-  // Start of week N: firstThursday + (week-1)*7 days
-  const weekStart = new Date(firstThursday);
-  weekStart.setUTCDate(firstThursday.getUTCDate() + (week - 1) * 7);
-  // End: weekStart + 6 days (end of Monday)
+  const week1Start = getNflSeasonStart(year);
+
+  // Start of week N: week1Start + (week-1)*7 days (Tuesday)
+  // But start at 12:00 PM UTC on Tuesday to avoid overlap with previous week's Monday night games
+  const weekStart = new Date(week1Start);
+  weekStart.setUTCDate(week1Start.getUTCDate() + (week - 1) * 7);
+  weekStart.setUTCHours(12, 0, 0, 0); // Noon UTC on Tuesday
+
+  // End: weekStart + 7 days at 11:59 AM UTC (to capture Monday night games)
+  // Monday night games in US are typically Tuesday 1-2 AM UTC
   const weekEnd = new Date(weekStart);
-  weekEnd.setUTCDate(weekStart.getUTCDate() + 6);
+  weekEnd.setUTCDate(weekStart.getUTCDate() + 7);
+  weekEnd.setUTCHours(11, 59, 59, 999); // Tuesday 11:59 AM UTC (next week)
+
   return { weekStart, weekEnd };
 }
 
-// Helper to get current NFL week number (week 1 = first Thursday after Sep 1)
+// Helper to get current NFL week number (week 1 starts Tuesday after Labor Day)
 function getCurrentNflWeek(today = new Date()) {
   const year = today.getUTCFullYear();
-  // Find first Thursday after Sep 1
-  const sep1 = new Date(Date.UTC(year, 8, 1));
-  const firstThursday = new Date(sep1);
-  while (firstThursday.getUTCDay() !== 4) {
-    firstThursday.setUTCDate(firstThursday.getUTCDate() + 1);
+  const week1Start = getNflSeasonStart(year);
+
+  // If before season starts, return week 1
+  if (today < week1Start) {
+    return 1;
   }
-  // Calculate week number
+
+  // Calculate week number based on days since week 1 start
   const msPerWeek = 7 * 24 * 60 * 60 * 1000;
   const week =
-    Math.floor((today.getTime() - firstThursday.getTime()) / msPerWeek) + 1;
-  return week > 0 ? week : 1;
+    Math.floor((today.getTime() - week1Start.getTime()) / msPerWeek) + 1;
+
+  // Cap at week 18 (end of regular season)
+  return Math.min(week, 18);
 }
 
 async function main() {
@@ -314,4 +336,4 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   main().catch(console.error);
 }
 
-export { fetchNflOdds, getNflWeekRange, getCurrentNflWeek };
+export { fetchNflOdds, getNflWeekRange, getCurrentNflWeek, getNflSeasonStart };

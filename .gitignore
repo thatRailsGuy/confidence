@@ -68,3 +68,4 @@ temp/
 odds-api.rest
 playwright-report/index.html
 test-results/.last-run.json
+src/_data/nfl_odds.json
