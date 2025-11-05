@@ -1,0 +1,70 @@
+{
+  "lastUpdated": "2024-11-05T00:00:00.000Z",
+  "currentWeek": 10,
+  "games": [
+    {
+      "id": "fallback-1",
+      "matchup": "Team A vs. Team B",
+      "odds": "Team A: -125 ★ / Team B: +105",
+      "info": "Thu 8:20pm",
+      "commence_time": "2024-11-07T01:20:00.000Z",
+      "overUnder": 45.5,
+      "impliedHome": 23,
+      "impliedAway": 22
+    },
+    {
+      "id": "fallback-2",
+      "matchup": "Team C vs. Team D",
+      "odds": "Team C: -110 ★ / Team D: -110",
+      "info": "Sun 1:00pm",
+      "commence_time": "2024-11-10T18:00:00.000Z",
+      "overUnder": 42.5,
+      "impliedHome": 21,
+      "impliedAway": 21
+    },
+    {
+      "id": "fallback-3",
+      "matchup": "Team E vs. Team F",
+      "odds": "Team E: +120 / Team F: -140 ★",
+      "info": "Sun 8:20pm",
+      "commence_time": "2024-11-11T01:20:00.000Z",
+      "overUnder": 48.5,
+      "impliedHome": 26,
+      "impliedAway": 22
+    }
+  ],
+  "gamesByWeek": {
+    "10": [
+      {
+        "id": "fallback-1",
+        "matchup": "Team A vs. Team B",
+        "odds": "Team A: -125 ★ / Team B: +105",
+        "info": "Thu 8:20pm",
+        "commence_time": "2024-11-07T01:20:00.000Z",
+        "overUnder": 45.5,
+        "impliedHome": 23,
+        "impliedAway": 22
+      },
+      {
+        "id": "fallback-2",
+        "matchup": "Team C vs. Team D",
+        "odds": "Team C: -110 ★ / Team D: -110",
+        "info": "Sun 1:00pm",
+        "commence_time": "2024-11-10T18:00:00.000Z",
+        "overUnder": 42.5,
+        "impliedHome": 21,
+        "impliedAway": 21
+      },
+      {
+        "id": "fallback-3",
+        "matchup": "Team E vs. Team F",
+        "odds": "Team E: +120 / Team F: -140 ★",
+        "info": "Sun 8:20pm",
+        "commence_time": "2024-11-11T01:20:00.000Z",
+        "overUnder": 48.5,
+        "impliedHome": 26,
+        "impliedAway": 22
+      }
+    ]
+  }
+}
