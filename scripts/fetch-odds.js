@@ -229,17 +229,24 @@ function getNflWeekRange(week, year = new Date().getUTCFullYear()) {
 // Helper to get current NFL week number (week 1 starts Tuesday after Labor Day)
 function getCurrentNflWeek(today = new Date()) {
   const year = today.getUTCFullYear();
-  const week1Start = getNflSeasonStart(year);
 
-  // If before season starts, return week 1
-  if (today < week1Start) {
-    return 1;
+  // Determine which season year to use. If today is before the season
+  // start for the current calendar year, the active NFL season started
+  // in the previous calendar year (e.g. Jan/Feb games belong to prior season).
+  let seasonYear = year;
+  const currentYearWeek1Start = getNflSeasonStart(year);
+  if (today < currentYearWeek1Start) {
+    seasonYear = year - 1;
   }
+
+  const week1Start = getNflSeasonStart(seasonYear);
+
+  // If still before the computed week1Start, return 1 as a safe default
+  if (today < week1Start) return 1;
 
   // Calculate week number based on days since week 1 start
   const msPerWeek = 7 * 24 * 60 * 60 * 1000;
-  const week =
-    Math.floor((today.getTime() - week1Start.getTime()) / msPerWeek) + 1;
+  const week = Math.floor((today.getTime() - week1Start.getTime()) / msPerWeek) + 1;
 
   // Cap at week 18 (end of regular season)
   return Math.min(week, 18);
