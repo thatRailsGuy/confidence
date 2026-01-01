@@ -314,8 +314,19 @@ async function main() {
   const gamesByWeek = {};
   const currentWeek = getCurrentNflWeek();
 
+  // Determine the NFL season year to use for week ranges. Games occurring
+  // in January/February typically belong to the prior season year (e.g.,
+  // Jan 2026 games are part of the 2025 season). Use the same logic as
+  // `getCurrentNflWeek` to pick the correct season year.
+  const today = new Date();
+  let seasonYear = today.getUTCFullYear();
+  const currentYearWeek1Start = getNflSeasonStart(seasonYear);
+  if (today < currentYearWeek1Start) {
+    seasonYear = seasonYear - 1;
+  }
+
   for (let week = 1; week <= 18; week++) {
-    const { weekStart, weekEnd } = getNflWeekRange(week);
+    const { weekStart, weekEnd } = getNflWeekRange(week, seasonYear);
     const weekGames = allGames.filter((game) => {
       if (!game.commence_time) return false;
       const dt = new Date(game.commence_time);
