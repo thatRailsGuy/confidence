@@ -3,6 +3,8 @@ module.exports = function (eleventyConfig) {
   eleventyConfig.addPassthroughCopy("src/assets");
   eleventyConfig.addPassthroughCopy("src/css");
   eleventyConfig.addPassthroughCopy("src/js");
+  // Ensure nfl_odds.json (build-time data) is available in the output for runtime access
+  eleventyConfig.addPassthroughCopy({ "src/_data/nfl_odds.json": "nfl_odds.json" });
 
   // Watch for changes
   eleventyConfig.addWatchTarget("src/css/");
