@@ -6,9 +6,11 @@
   "main": "index.js",
   "scripts": {
     "build": "eleventy --config=.eleventy.cjs",
+    "postbuild": "npm run copy-data",
     "serve": "eleventy --serve --config=.eleventy.cjs",
     "debug": "DEBUG=Eleventy* eleventy --config=.eleventy.cjs",
     "fetch-odds": "node scripts/fetch-odds.js",
+    "copy-data": "node -e \"const fs=require('fs');const src='src/_data/nfl_odds.json';const dest='_site/nfl_odds.json';if(fs.existsSync(src)){fs.copyFileSync(src,dest);console.log('Copied',src,'->',dest);}else{console.log('No data to copy:',src);}\"",
     "clean": "rm -rf _site",
     "test": "jest",
     "test:watch": "jest --watch",
